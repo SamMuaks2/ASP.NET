@@ -7,6 +7,8 @@ var app = builder.Build();
 
 var todos = new List<Todo>();
 
+app.MapGet("/todos", () => todos);
+
 app.MapGet("/todos/{id}", Results<Ok<Todo>, NotFound> (int id) =>
 {
     var targetTodo = todos.SingleOrDefault(t => id == t.Id);
@@ -19,6 +21,13 @@ app.MapPost("/todos", (Todo task) =>
     return TypedResults.Created("/todod/{id}", task);
 });
 
+app.MapDelete("/todos/{id}", (int id) =>
+{
+    todos.RemoveAll(t => id == t.Id);
+    return TypedResults.NoContent();
+});
+
+
 app.Run();
 
-public record Todo(int Id, string Name, DateTime DueDate, bool IsCompleted)
+public record Todo(int Id, string Name, DateTime DueDate, bool IsCompleted);
