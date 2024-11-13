@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Rewrite;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.services.AddSingleton<ITaskService>(new InMemoryTaskService());
+
+
 var app = builder.Build();
 
 
@@ -17,19 +20,19 @@ app.Use(async (context, next) =>
 
 var todos = new List<Todo>();
 
-app.MapGet("/todos", () => todos);
+app.MapGet("/todos", (ITaskService) => service.GetTodos);
 
-app.MapGet("/todos/{id}", Results<Ok<Todo>, NotFound> (int id) =>
+app.MapGet("/todos/{id}", Results<Ok<Todo>, NotFound> (int id, ITaskService service) =>
 {
-    var targetTodo = todos.SingleOrDefault(t => id == t.Id);
+    var targetTodo = service.GetTodoByID(id); //todos.SingleOrDefault(t => id == t.Id);
     return targetTodo is null
     ? TypedResults.NotFound()
     : TypedResults.Ok(targetTodo);
 });
 
-app.MapPost("/todos", (Todo task) =>
+app.MapPost("/todos", (Todo task, ITaskService service) =>
 {
-    todos.Add(task);
+    service.AddTodo(task); //todos.Add(task);
     return TypedResults.Created("/todos/{id}", task);
 })
 
