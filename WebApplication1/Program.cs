@@ -57,9 +57,9 @@ app.MapPost("/todos", (Todo task, ITaskService service) =>
     return await next(context);
 });
 
-app.MapDelete("/todos/{id}", (int id) =>
+app.MapDelete("/todos/{id}", (int id, ITaskService service) =>
 {
-    todos.RemoveAll(t => id == t.Id);
+    service.DeleteTodoByID(id);
     return TypedResults.NoContent();
 });
 
